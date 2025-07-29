@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Calendar, Clock, User, Phone, Mail, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { playNotificationSound } from "@/utils/notification";
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -42,25 +44,49 @@ const AppointmentModal = ({ isOpen, onClose }: AppointmentModalProps) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          appointment_date: formData.date,
+          appointment_time: formData.time,
+          service: formData.service,
+          message: formData.message
+        });
 
-    toast({
-      title: "Appointment Booked Successfully!",
-      description: `Your appointment is scheduled for ${formData.date} at ${formData.time}. We'll send you a confirmation shortly.`,
-    });
+      if (error) throw error;
 
-    setIsSubmitting(false);
-    onClose();
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      date: "",
-      time: "",
-      service: "",
-      message: ""
-    });
+      // Play notification sound
+      playNotificationSound();
+
+      toast({
+        title: "Appointment Booked Successfully!",
+        description: `Your appointment is scheduled for ${formData.date} at ${formData.time}. We'll send you a confirmation shortly.`,
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        date: "",
+        time: "",
+        service: "",
+        message: ""
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to book appointment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {

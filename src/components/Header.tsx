@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, MapPin } from "lucide-react";
+import { Menu, X, Phone, MapPin, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = ({ onBookAppointment }: { onBookAppointment: () => void }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,6 +41,12 @@ const Header = ({ onBookAppointment }: { onBookAppointment: () => void }) => {
               <Phone className="w-4 h-4 mr-2" />
               <span>+91 98765 43210</span>
             </div>
+            <Link to="/admin">
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            </Link>
             <Button 
               onClick={onBookAppointment}
               className="bg-gradient-primary text-primary-foreground hover:shadow-luxury transition-all duration-300"
@@ -71,11 +78,17 @@ const Header = ({ onBookAppointment }: { onBookAppointment: () => void }) => {
                   {item.name}
                 </a>
               ))}
-              <div className="pt-4 border-t border-border space-y-3">
+               <div className="pt-4 border-t border-border space-y-3">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Phone className="w-4 h-4 mr-2" />
                   <span>+91 98765 43210</span>
                 </div>
+                <Link to="/admin">
+                  <Button variant="outline" size="sm" className="w-full mb-2" onClick={() => setIsMenuOpen(false)}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Admin Panel
+                  </Button>
+                </Link>
                 <Button 
                   onClick={() => {
                     onBookAppointment();
